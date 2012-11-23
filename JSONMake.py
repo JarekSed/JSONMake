@@ -13,9 +13,18 @@ class FileUtilities:
     def __init__(self):
         return
     
-	#Opens a file, ignoring case for the file name 
+	#Opens a file, ignoring case for the file name.
+	#Eventually I plan to allow the user to input a file name(perhaps even a path to the JSONMakefile in another directory?
     def openIgnoreCase(self, file_name):
-        return open(file_name)
+		#store the results of ls in this variable
+		process = subprocess.Popen('ls', stdout=subprocess.PIPE)
+		files = process.stdout.read()
+		for file in files.split():
+			if file.lower() == file_name.lower():
+				return open(file)
+		#If the loop is exited, then this file is not in the directory.
+		print "Error! no JSONMakefile in this directory!"
+		sys.exit()
 
 #A class that deals with makefile functionality
 class Builder:
@@ -48,12 +57,15 @@ class Builder:
 					word = replaceVar(word)
 			
 			#Actually execute the commands		
-			try:
-				subprocess.check_call(command.split())
-			except subprocess.CalledProcessError as e:
-				print e.output
-				return e.returncode
-			return 
+			self.execute_command(command.split)
+	
+	#Executes the command given. The command argument should be in list form.
+	def execute_command(self, command):
+		try:
+			return subprocess.check_call(command.split())
+		except subprocess.CalledProcessError as e:
+			print e.output
+			return e.returncode
 
 
 utilities = FileUtilities() #object to deal with files
@@ -77,5 +89,5 @@ except KeyError:
 	print "No rule for 'all'!"
 	sys.exit()
 
-builder.build('all')
-
+#builder.build('all')
+print makeFile
