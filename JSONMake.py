@@ -44,12 +44,19 @@ class Builder:
 		#This makes the rest of my code easier to read
 		thisRule = self.__json_object['Rules'][rule]
 
-		if 'depends' in thisRule:
-			self.build(thisRule['depends'])
-		
-		#This is the string with the commands in this JSON object
-		commands = thisRule['commands']
-		
+		try:
+			if 'depends' in thisRule:
+				self.build(thisRule['depends'])
+		except KeyError:
+			#Do stuff to deal with this case
+
+		try:
+			#This is the string with the commands in this JSON object
+			commands = thisRule['commands']
+		except KeyError:
+			#Do stuff to deal with this case as well. Maybe this for now:
+			commands = []
+
 		#Go through every command and run each one separately
 		for command in commands:
 			
@@ -85,11 +92,16 @@ except ValueError:
 
 builder = Builder(makeFile)
 
-#Just to check if there is a rule to build for 'all' There is probably a better, and more pythonic, way to do this
-try:
-	makeFile['Rules']['all']
-except KeyError:
-	print "No rule for 'all'!"
+#Decided to make this and 'all' two separate cases. Does this affect readability, and make things too cluttered?
+if 'Rules' not in makeFile:
+	print: "Invalid JSON object!"
+	sys.exit()
+
+#Just to check if there is a rule to build for 'all' 
+if 'all' in makeFile['Rules']:
+	builder.build('all');
+else:
+	print "No rule to build 'all'!"
 	sys.exit()
 
 #Crashes right now because I am not finished.
