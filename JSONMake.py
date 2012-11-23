@@ -8,6 +8,7 @@ import json
 import subprocess
 
 #A class containing various methods to help me deal with files effectively
+#Should I take this class out because it only has one method? Does it just obfuscate my code?
 class FileUtilities:
     
     def __init__(self):
@@ -26,16 +27,16 @@ class FileUtilities:
 		print "Error! no JSONMakefile in this directory!"
 		sys.exit()
 
-#A class that deals with makefile functionality
+#A class that deals with makefile functionality. Could probably have chosen a better name?
 class Builder:
 	
 	def __init__(self, json_object):
 		self.__json_object = json_object
 		return
 
-	#Takes an input string(with a preceding $ char to denote that it is a variable) and replaces it with it's corresponding value
+	#Takes an input string that represents a variable(will usually have a preceding $ char to denote that it is a variable, but this should be dealt with before calling this method.) and replaces it with it's corresponding value
 	def replaceVar(self, string):
-		return self.__json_object['Variables'][string[1:]]
+		return self.__json_object['Variables'][string]
 
 	#Attempts to build from a rule with the input string as a name of the rule
 	def build(self, rule):
@@ -48,13 +49,15 @@ class Builder:
 		
 		#This is the string with the commands in this JSON object
 		commands = thisRule['commands']
-
+		
+		#Go through every command and run each one separately
 		for command in commands:
 			
 			#Replace all variables in the commands string
 			for word in command.split():
 				if word[0] == '$':
-					word = replaceVar(word)
+					#send in the word without the preceding '$'
+					word = replaceVar(word[1:])
 			
 			#Actually execute the commands		
 			self.execute_command(command.split)
@@ -82,12 +85,12 @@ except ValueError:
 
 builder = Builder(makeFile)
 
-#Just to check if there is a rule to build for 'all'
+#Just to check if there is a rule to build for 'all' There is probably a better, and more pythonic, way to do this
 try:
 	makeFile['Rules']['all']
 except KeyError:
 	print "No rule for 'all'!"
 	sys.exit()
 
-#builder.build('all')
-print makeFile
+#Crashes right now because I am not finished.
+builder.build('all')
