@@ -6,39 +6,28 @@ Python script to parse JSON makefiles. I'll add good doc strings later
 import sys
 import json
 import subprocess
+import os
+	
+#Opens a file, ignoring case for the file name.
+#Eventually I plan to allow the user to input a file name(perhaps even a path to the JSONMakefile in another directory?
+def openIgnoreCase(file_name):
+	
+	files = os.listdir(os.curdir)
+	#iterate through every file in the directory
+	for file in files:
+		if file.lower() == file_name.lower():
+			return open(file)
+	#If the loop is exited, then this file is not in the directory.
+	print "Error! no JSONMakefile in this directory!"
+	sys.exit()
 
-#A class containing various methods to help me deal with files effectively
-#Should I take this class out because it only has one method? Does it just obfuscate my code?
-class FileUtilities:
-	
-	def __init__(self):
-		return
-	
-	#Opens a file, ignoring case for the file name.
-	#Eventually I plan to allow the user to input a file name(perhaps even a path to the JSONMakefile in another directory?
-	def openIgnoreCase(self, file_name):
-		
-		files = self.getFiles()
-    	#iterate through every file in the directory
-		for file in files:
-			if file.lower() == file_name.lower():
-				return open(file)
-		#If the loop is exited, then this file is not in the directory.
-		print "Error! no JSONMakefile in this directory!"
-		sys.exit()
-	
-	#returns a list of files in the current directory
-	def getFiles(self):
-		process = subprocess.Popen('ls', stdout=subprocess.PIPE)
-		return process.stdout.read().split()	
-	
-	#Checks to see whether a file is in the current directory
-	def isFileInDir(self, file_name):
-		files = self.getFiles()
-		return file_name in files
+#Checks to see whether a file is in the current directory
+def isFileInDir(file_name):
+	files = os.listdir(os.curdir)
+	return file_name in files
 
 #A class that deals with makefile functionality. Could probably have chosen a better name?
-class Builder:
+class JSONMaker:
 	
 	def __init__(self, json_object):
 		self.__json_object = json_object
@@ -46,28 +35,36 @@ class Builder:
 
 	#Takes an input string that represents a variable(will usually have a preceding $ char to denote that it is a variable, but this should be dealt with before calling this method.) and replaces it with it's corresponding value
 	def replaceVar(self, string):
-		return self.__json_object['Variables'][string]
+		try:
+			return self.__json_object['Variables'][string]
+		except KeyError:
+			print "Invalid JSON Object! Check your variables"
+			sys.exit()
 
 	#Attempts to build from a rule with the input string as a name of the rule
 	def build(self, rule):
 
-		utilities = FileUtilities()
-		#This makes the rest of my code easier to read
-		thisRule = self.__json_object['Rules'][rule]
+		try:
+			#This makes the rest of my code easier to read
+			thisRule = self.__json_object['Rules'][rule]
+		except KeyError:
+			print "Rule not found: " + rule
+			sys.exit()
 
 		if 'depends' in thisRule:
 			if thisRule['depends'] not in self.__json_object['Rules']:
-				if utilities.isFileInDir(thisRule['depends']):
+				if isFileInDir(thisRule['depends']):
 					return True
 				else:
 					print "File not found: " + thisRule['depends']
 					sys.exit()
 			else:
-				self.build(thisRule['depends'])
-	
+				try:
+					self.build(thisRule['depends'])
+				except subprocess.CalledProcessError as e:
+					raise e
 
 		if 'commands' in thisRule:
-			#This is the string with the commands in this JSON object
 			commands = thisRule['commands']
 
 			#Go through every command and run each one separately
@@ -80,22 +77,20 @@ class Builder:
 						word = self.replaceVar(word[1:])
 				
 				#Actually execute the commands	
-				print thisRule
-				self.execute_command(command.split())
+				try:
+					self.execute_command(command.split())
+				except subprocess.CalledProcessError as e:
+					raise e
 
 	#Executes the command given. The command argument should be in list form.
 	def execute_command(self, command):
 		try:
 			return subprocess.check_call(command)
 		except subprocess.CalledProcessError as e:
-			print e.output
-			return e.returncode
-
-
-utilities = FileUtilities() #object to deal with files
+			raise e.returncode
 
 try:
-    with utilities.openIgnoreCase('JSONMakefile') as f:
+    with openIgnoreCase('JSONMakefile') as f:
         makeFile = json.load(f)
 except EnvironmentError:
     print "JSON MakeFile not found!"
@@ -104,7 +99,7 @@ except ValueError:
 	print "Invalid JSON object!"
 	sys.exit()
 
-builder = Builder(makeFile)
+builder = JSONMaker(makeFile)
 
 #Decided to make this and 'all' two separate cases. Does this affect readability, and make things too cluttered?
 if 'Rules' not in makeFile:
@@ -112,10 +107,12 @@ if 'Rules' not in makeFile:
 
 #Just to check if there is a rule to build for 'all' 
 if 'all' in makeFile['Rules']:
-	builder.build('all');
+	try:
+		builder.build('all')
+	except subprocess.CalledProcessError as e:
+		print "fuck"
+		print e.output
+		sys.exit()
 else:
 	print "No rule to build 'all'!"
 	sys.exit()
-
-#Crashes right now because I am not finished.
-builder.build('all')
