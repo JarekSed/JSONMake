@@ -10,22 +10,32 @@ import subprocess
 #A class containing various methods to help me deal with files effectively
 #Should I take this class out because it only has one method? Does it just obfuscate my code?
 class FileUtilities:
-    
-    def __init__(self):
-        return
-    
+	
+	def __init__(self):
+		return
+	
 	#Opens a file, ignoring case for the file name.
 	#Eventually I plan to allow the user to input a file name(perhaps even a path to the JSONMakefile in another directory?
-    def openIgnoreCase(self, file_name):
-		#store the results of ls in this variable
-		process = subprocess.Popen('ls', stdout=subprocess.PIPE)
-		files = process.stdout.read()
-		for file in files.split():
+	def openIgnoreCase(self, file_name):
+		
+		files = self.getFiles()
+    	#iterate through every file in the directory
+		for file in files:
 			if file.lower() == file_name.lower():
 				return open(file)
 		#If the loop is exited, then this file is not in the directory.
 		print "Error! no JSONMakefile in this directory!"
 		sys.exit()
+	
+	#returns a list of files in the current directory
+	def getFiles(self):
+		process = subprocess.Popen('ls', stdout=subprocess.PIPE)
+		return process.stdout.read().split()	
+	
+	#Checks to see whether a file is in the current directory
+	def isFileInDir(self, file_name):
+		files = self.getFiles()
+		return file_name in files
 
 #A class that deals with makefile functionality. Could probably have chosen a better name?
 class Builder:
@@ -41,38 +51,42 @@ class Builder:
 	#Attempts to build from a rule with the input string as a name of the rule
 	def build(self, rule):
 
+		utilities = FileUtilities()
 		#This makes the rest of my code easier to read
 		thisRule = self.__json_object['Rules'][rule]
 
-		try:
-			if 'depends' in thisRule:
+		if 'depends' in thisRule:
+			if thisRule['depends'] not in self.__json_object['Rules']:
+				if utilities.isFileInDir(thisRule['depends']):
+					return True
+				else:
+					print "File not found: " + thisRule['depends']
+					sys.exit()
+			else:
 				self.build(thisRule['depends'])
-		except KeyError:
-			#Do stuff to deal with this case
+	
 
-		try:
+		if 'commands' in thisRule:
 			#This is the string with the commands in this JSON object
 			commands = thisRule['commands']
-		except KeyError:
-			#Do stuff to deal with this case as well. Maybe this for now:
-			commands = []
 
-		#Go through every command and run each one separately
-		for command in commands:
-			
-			#Replace all variables in the commands string
-			for word in command.split():
-				if word[0] == '$':
-					#send in the word without the preceding '$'
-					word = replaceVar(word[1:])
-			
-			#Actually execute the commands		
-			self.execute_command(command.split)
-	
+			#Go through every command and run each one separately
+			for command in commands:
+				
+				#Replace all variables in the commands string
+				for word in command.split():
+					if word[0] == '$':
+						#send in the word without the preceding '$'
+						word = self.replaceVar(word[1:])
+				
+				#Actually execute the commands	
+				print thisRule
+				self.execute_command(command.split())
+
 	#Executes the command given. The command argument should be in list form.
 	def execute_command(self, command):
 		try:
-			return subprocess.check_call(command.split())
+			return subprocess.check_call(command)
 		except subprocess.CalledProcessError as e:
 			print e.output
 			return e.returncode
@@ -94,7 +108,6 @@ builder = Builder(makeFile)
 
 #Decided to make this and 'all' two separate cases. Does this affect readability, and make things too cluttered?
 if 'Rules' not in makeFile:
-	print: "Invalid JSON object!"
 	sys.exit()
 
 #Just to check if there is a rule to build for 'all' 
