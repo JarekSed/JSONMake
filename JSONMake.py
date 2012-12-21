@@ -8,10 +8,15 @@ import json
 import subprocess
 import os
 	
-#Opens a file, ignoring case for the file name.
 #Eventually I plan to allow the user to input a file name(perhaps even a path to the JSONMakefile in another directory?
 def openIgnoreCase(file_name):
+	"""
+	Opens a file, ignoring case for the file name.
 	
+	Arguments:
+	file_name: The name of the file to be opened.
+	"""
+
 	files = os.listdir(os.curdir)
 	#iterate through every file in the directory
 	for file in files:
@@ -21,28 +26,55 @@ def openIgnoreCase(file_name):
 	print "Error! no JSONMakefile in this directory!"
 	sys.exit()
 
-#Checks to see whether a file is in the current directory
 def isFileInDir(file_name):
+	"""
+	Checks to see whether a file is in the current directory
+	
+	Arguments:
+	file_name: The name of the file.
+	"""
+
 	files = os.listdir(os.curdir)
 	return file_name in files
 
-#A class that deals with makefile functionality. Could probably have chosen a better name?
 class JSONMaker:
 	
+	"""
+	A class that deals with makefile functionality.
+	
+	Methods:
+	replaceVar(string)
+	build(rule)
+	"""
+
 	def __init__(self, json_object):
 		self.__json_object = json_object
 		return
 
-	#Takes an input string that represents a variable(will usually have a preceding $ char to denote that it is a variable, but this should be dealt with before calling this method.) and replaces it with it's corresponding value
 	def replaceVar(self, string):
+
+		"""
+		Takes an input string that represents a variable, and replaces it with it's corresponding value
+		
+		The variable will usually have a preceding $ char to denote that it is a variable, but this should be dealt with before calling this method.
+		Arguments:
+		string: The variable to be replaced
+		"""
+		
 		try:
 			return self.__json_object['Variables'][string]
 		except KeyError:
 			print "Invalid JSON Object! Check your variables"
 			sys.exit()
 
-	#Attempts to build from a rule with the input string as a name of the rule
 	def build(self, rule):
+		
+		"""
+		Attempts to recursively build from a rule
+
+		Arguments:
+		rule: String representing the name of the rule
+		"""
 
 		try:
 			#This makes the rest of my code easier to read
