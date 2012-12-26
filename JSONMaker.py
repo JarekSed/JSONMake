@@ -13,7 +13,6 @@ class JSONMaker:
 
 	def __init__(self, json_object):
 		self.__json_object = json_object
-		return
 
 	def replaceVar(self, string):
 
@@ -29,7 +28,7 @@ class JSONMaker:
 			return self.__json_object['Variables'][string]
 		except KeyError:
 			print "Invalid JSON Object! Check your variables"
-			sys.exit()
+			raise KeyError
 
 	def build(self, rule):
 		
@@ -45,7 +44,7 @@ class JSONMaker:
 			thisRule = self.__json_object['Rules'][rule]
 		except KeyError:
 			print "Rule not found: " + rule
-			sys.exit()
+			raise KeyError
 
 		if 'depends' in thisRule:
 			if thisRule['depends'] not in self.__json_object['Rules']:
@@ -89,5 +88,4 @@ class JSONMaker:
 		try:
 			return subprocess.check_call(command)
 		except subprocess.CalledProcessError as e:
-			raise e.returncode
-
+			raise e

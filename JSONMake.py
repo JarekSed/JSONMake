@@ -19,11 +19,14 @@ except EnvironmentError:
 except ValueError:
 	print "Invalid JSON object!"
 	sys.exit()
-
+except IOError:
+	print "Error! No JSONMakefile in this directory!"
+	sys.exit()
+	
 builder = JSONMaker(makeFile)
 
-#Decided to make this and 'all' two separate cases. Does this affect readability, and make things too cluttered?
 if 'Rules' not in makeFile:
+	print "Invalid make file! Check your Rules"
 	sys.exit()
 
 #Just to check if there is a rule to build for 'all' 
@@ -31,8 +34,10 @@ if 'all' in makeFile['Rules']:
 	try:
 		builder.build('all')
 	except subprocess.CalledProcessError as e:
-		print "fuck"
 		print e.output
+		sys.exit()
+	except KeyError:
+		#Printing out a message was dealt with already
 		sys.exit()
 else:
 	print "No rule to build 'all'!"

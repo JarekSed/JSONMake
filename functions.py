@@ -16,8 +16,7 @@ def openIgnoreCase(file_name):
 		if file.lower() == file_name.lower():
 			return open(file)
 	#If the loop is exited, then this file is not in the directory.
-	print "Error! no JSONMakefile in this directory!"
-	sys.exit()
+	raise IOError
 
 def isFileInDir(file_name):
 	"""
