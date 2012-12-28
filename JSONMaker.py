@@ -1,5 +1,6 @@
 import json
 import subprocess
+from functions import *
 
 class JSONMaker:
 	
@@ -38,29 +39,28 @@ class JSONMaker:
 		Arguments:
 		rule: String representing the name of the rule
 		"""
+	
+		thisRule = ""
 
-		try:
-			#This makes the rest of my code easier to read
-			thisRule = self.__json_object['Rules'][rule]
-		except KeyError:
-			print "Rule not found: " + rule
-			raise KeyError
+		if isFileInDir(rule):
+			thisRule = rule
+		else:
+			try:
+				thisRule = self.__json_object['Rules'][rule]
+			except KeyError:
+				print "Rule not found: " + rule
+				raise KeyError
 
 		if 'depends' in thisRule:
-			if thisRule['depends'] not in self.__json_object['Rules']:
-				if isFileInDir(thisRule['depends']):
-					return True
-				else:
-					print "File not found: " + thisRule['depends']
-					sys.exit()
-			else:
+			for dependency in thisRule['depends'].split():
 				try:
-					self.build(thisRule['depends'])
+					self.build(dependency)
 				except subprocess.CalledProcessError as e:
 					raise e
 
 		if 'commands' in thisRule:
 			commands = thisRule['commands']
+			command_to_execute = []
 
 			#Go through every command and run each one separately
 			for command in commands:
@@ -69,14 +69,17 @@ class JSONMaker:
 				for word in command.split():
 					if word[0] == '$':
 						#send in the word without the preceding '$'
-						word = self.replaceVar(word[1:])
-				
+						command_to_execute.append(self.replaceVar(word[1:]))
+					else:
+						command_to_execute.append(word)
+
 				#Actually execute the commands	
 				try:
-					self.execute_command(command.split())
+					self.execute_command(command_to_execute)
 				except subprocess.CalledProcessError as e:
 					raise e
 
+		return None
 	
 	def execute_command(self, command):
 		"""
