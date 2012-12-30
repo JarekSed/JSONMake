@@ -1,6 +1,6 @@
 import json
 import subprocess
-from functions import *
+import functions
 
 class JSONMaker:
 	
@@ -14,8 +14,11 @@ class JSONMaker:
 
 	def __init__(self, json_object):
 		self.__json_object = json_object
+		if 'Rules' not in json_object:
+			print >> sys.stderr, "Invalid make file! Please include 'Rules'"
+			raise IOError
 
-	def replaceVar(self, string):
+	def __replaceVar(self, string):
 
 		"""
 		Takes an input string that represents a variable, and replaces it with it's corresponding value
@@ -28,7 +31,7 @@ class JSONMaker:
 		try:
 			return self.__json_object['Variables'][string]
 		except KeyError:
-			print "Invalid JSON Object! Check your variables"
+			print >> sys.stderr, "Invalid JSON Object! Check your variables"
 			raise KeyError
 
 	def build(self, rule):
@@ -42,8 +45,10 @@ class JSONMaker:
 	
 		thisRule = ""
 
-		if isFileInDir(rule):
+		if functions.isFileInDir(rule):
 			thisRule = rule
+			#This already exists, and nothing needs to be done for now. 
+			return True
 		else:
 			try:
 				thisRule = self.__json_object['Rules'][rule]
@@ -69,19 +74,19 @@ class JSONMaker:
 				for word in command.split():
 					if word[0] == '$':
 						#send in the word without the preceding '$'
-						command_to_execute.append(self.replaceVar(word[1:]))
+						for replacement in self.__replaceVar(word[1:]).split():
+							command_to_execute.append(replacement)
 					else:
 						command_to_execute.append(word)
 
 				#Actually execute the commands	
 				try:
-					self.execute_command(command_to_execute)
+					print "Execute: " + str(command_to_execute)
+					self.__execute_command(command_to_execute)
 				except subprocess.CalledProcessError as e:
 					raise e
 
-		return None
-	
-	def execute_command(self, command):
+	def __execute_command(self, command):
 		"""
 		Executes the command given. The command argument should be in list form.
 
