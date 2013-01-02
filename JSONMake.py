@@ -20,6 +20,9 @@ except EnvironmentError:
 except IOError:
     print >> sys.stderr, "Error! No JSONMakefile in this directory!"
     sys.exit()
+except ValueError, e:
+    print >> sys.stderr, "Error! Invalid JSON: " + str(e)
+    sys.exit()
     
 builder = JSONMaker.JSONMaker(makeFile)
 
