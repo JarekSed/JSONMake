@@ -17,18 +17,18 @@ except EnvironmentError:
     print >> sys.stderr, "JSON MakeFile not found!"
     sys.exit()
 except IOError:
-	print >> sys.stderr, "Error! No JSONMakefile in this directory!"
-	sys.exit()
-	
+    print >> sys.stderr, "Error! No JSONMakefile in this directory!"
+    sys.exit()
+    
 builder = JSONMaker.JSONMaker(makeFile)
 
 try:
-	builder.build('all')
+    builder.build('all')
 except subprocess.CalledProcessError as e:
-	print >> sys.stderr, e.output
-	sys.exit()
+    print >> sys.stderr, e.output
+    sys.exit()
 except KeyError:
-	#Printing out a message was dealt with already
-	sys.exit()
+    #Printing out a message was dealt with already
+    sys.exit()
 
 print "Build successful!"
