@@ -1,3 +1,4 @@
+#! /usr/bin/python2
 '''
 Python script to parse JSON makefiles. I'll add good doc strings later
 
