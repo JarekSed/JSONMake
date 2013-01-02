@@ -65,10 +65,10 @@ class JSONMaker:
 
         if 'commands' in thisRule:
             commands = thisRule['commands']
-            command_to_execute = []
 
             #Go through every command and run each one separately
             for command in commands:
+                command_to_execute = []
                 
                 #Replace all variables in the commands string
                 for word in command.split():
