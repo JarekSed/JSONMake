@@ -24,7 +24,13 @@ except IOError:
 builder = JSONMaker.JSONMaker(makeFile)
 
 try:
-    builder.build('all')
+    if len(sys.argv) == 2:
+        builder.build(sys.argv[1])
+    elif len(sys.argv) == 1:
+        builder.build('all')
+    else:
+        print >> sys.stderr,  "Usage: JSONMake [target]"
+        sys.exit(1)
 except subprocess.CalledProcessError as e:
     print >> sys.stderr, e.output
     sys.exit()
