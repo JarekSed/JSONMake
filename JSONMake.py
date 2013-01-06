@@ -3,6 +3,7 @@ Python script to parse JSON makefiles. I'll add good doc strings later
 
 @author: Sam Agnew
 '''
+
 import sys
 import json
 import subprocess

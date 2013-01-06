@@ -53,7 +53,6 @@ class JSONMaker:
 			try:
 				thisRule = self.__json_object['Rules'][rule]
 			except KeyError:
-				print "Rule not found: " + rule
 				raise KeyError
 
 		if 'depends' in thisRule:
