@@ -5,7 +5,7 @@ import sys
 def openIgnoreCase(file_name):
     """
     Opens a file, ignoring case for the file name.
-    
+
     Arguments:
     file_name: The name of the file to be opened.
     """
@@ -21,7 +21,7 @@ def openIgnoreCase(file_name):
 def isFileInDir(file_name):
     """
     Checks to see whether a file is in the current directory
-    
+
     Arguments:
     file_name: The name of the file.
     """

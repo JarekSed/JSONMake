@@ -23,7 +23,7 @@ except IOError:
 except ValueError, e:
     print >> sys.stderr, "Error! Invalid JSON: " + str(e)
     sys.exit()
-    
+
 builder = JSONMaker.JSONMaker(makeFile)
 
 try:
