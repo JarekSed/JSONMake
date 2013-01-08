@@ -40,6 +40,7 @@ class JSONMaker:
         """
         Checks to see if a rule needs to be built.
         This is based on when the rule was last modified compared to it's dependencies.
+        It is assumed that the rule exists, because that check should have been already made.
 
         Arguments:
         rule - String representing the name of the rule
@@ -51,23 +52,28 @@ class JSONMaker:
         if 'depends' in thisRule:
             for dependency in thisRule['depends'].split():
                     
+                #In all of the following cases, it is decided that the rule must be built.
+                #If none of them are true for all dependencies of a rule, then False is returned.
                 if not functions.isFileInDir(dependency):
+                    #This means that the dependency does not exist in the directory.
                     return True
 
                 if time_last_modified < os.path.getmtime(dependency):
-                    #This means that a dependency has been modified
+                    #This means that a dependency has been modified.
                     return True
             
                 if self.__needsToBeBuilt(dependency):
+                    #Now a recursive check is made for every dependency of this rule
                     return True
 
+        #None of the other cases returned True
         return False
 
     def build(self, rule):
         
         """
         Attempts to recursively build from a rule
-
+        
         Arguments:
         rule: String representing the name of the rule
         """
@@ -77,15 +83,15 @@ class JSONMaker:
         if functions.isFileInDir(rule):
             if rule not in self.__json_object['Rules']:
                 #There is no rule for this. Nothing needs to be done.
-                return True
+                return 
             else:
                 if not self.__needsToBeBuilt(rule):
-                    return True
-        
+                    return
+
         try:
             thisRule = self.__json_object['Rules'][rule]
         except KeyError:
-            print "Rule not found: " + rule
+            print >> sys.stderr, "Rule not found: " + rule
             raise KeyError
 
         if 'depends' in thisRule:
@@ -94,7 +100,7 @@ class JSONMaker:
                     self.build(dependency)
                 except subprocess.CalledProcessError as e:
                     raise e
-
+        
         if 'commands' in thisRule:
             commands = thisRule['commands']
 
@@ -113,6 +119,7 @@ class JSONMaker:
 
                 #Actually execute the commands  
                 try:
+                    print "Executing: " + command
                     self.__execute_command(command_to_execute)
                 except subprocess.CalledProcessError as e:
                     raise e
