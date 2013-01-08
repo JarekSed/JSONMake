@@ -2,6 +2,7 @@ import json
 import subprocess
 import functions
 import os
+import sys
 
 class JSONMaker:
 
@@ -62,7 +63,7 @@ class JSONMaker:
                     #This means that a dependency has been modified.
                     return True
 
-                if self.__needsToBeBuilt(dependency):
+                if dependency in self.__json_object['Rules'] and self.__needsToBeBuilt(dependency):
                     #Now a recursive check is made for every dependency of this rule
                     return True
 
@@ -119,7 +120,7 @@ class JSONMaker:
 
                 #Actually execute the commands
                 try:
-                    print "Executing: " + command
+                    print "Executing: " + " ".join(command_to_execute)
                     self.__execute_command(command_to_execute)
                 except subprocess.CalledProcessError as e:
                     raise e
