@@ -3,13 +3,22 @@ import json
 import functions
 
 class MakeFileConverter:
+    """
+    A class that deals with converting regular Makefiles to JSONMakefiles
 
-    def __init__(self, makefile):
+    Methods:
+    convert(): Converts the Makefile
+    """
+
+
+    def __init__(self, makefile=functions.openIgnoreCase("Makefile")):
         self.makefile = makefile
         self.conversion_dict = {'Variables': {}, 'Rules': {}}
 
     def convert(self):
-        #Performs the converting of makefile syntax to a Python dict
+        """
+        Converts the Makefile into a JSONMakeFile
+        """
 
         rule = ''
 

@@ -45,6 +45,15 @@ class JSONMaker:
         Arguments:
         rule - String representing the name of the rule
         """
+        
+        if rule not in self.__json_object['Rules']:
+            #If this is true, then this base case must be the result of a recursive call
+            #This is a dependency for some other rule that does exist.
+            if functions.isFileInDir(rule):
+                return False
+            else:
+                print >> stderr, "File not found: " + rule
+                raise KeyError
 
         thisRule = self.__json_object['Rules'][rule]
         time_last_modified = os.path.getmtime(rule)

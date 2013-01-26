@@ -37,7 +37,7 @@ try:
 except subprocess.CalledProcessError as e:
     print >> sys.stderr, e.output
     sys.exit()
-except KeyError:
+except KeyError as e:
     #Printing out a message was dealt with already
     sys.exit()
 
