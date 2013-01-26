@@ -10,20 +10,26 @@ import subprocess
 import os
 import functions
 import JSONMaker
+import MakeFileConverter
 
 try:
     with functions.openIgnoreCase('JSONMakefile') as f:
         makeFile = json.load(f)
-except EnvironmentError:
-    print >> sys.stderr, "JSON MakeFile not found!"
-    sys.exit()
-except IOError:
-    print >> sys.stderr, "Error! No JSONMakefile in this directory!"
-    sys.exit()
+except (IOError, EnvironmentError):
+    print >> sys.stderr, "Error! No JSONMakefile in this directory! Making one, and continuing."
+    try:
+        with functions.openIgnoreCase('Makefile') as makefile:
+            converter = MakeFileConverter.MakeFileConverter(makefile)
+            converter.convert()
+            with functions.openIgnoreCase('JSONMakefile') as f:
+                makeFile = json.load(f)
+    except (IOError, EnvironmentError):
+        print >> sys.stderr, "Error! No Makefile or JSONMakefile in this directory!"
+        sys.exit()
 except ValueError, e:
     print >> sys.stderr, "Error! Invalid JSON: " + str(e)
     sys.exit()
-    
+
 builder = JSONMaker.JSONMaker(makeFile)
 
 try:
