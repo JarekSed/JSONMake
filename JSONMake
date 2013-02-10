@@ -13,19 +13,17 @@ import JSONMaker
 import MakeFileConverter
 
 try:
+    if not isFileInDir('JSONMakefile'):
+        with functions.openIgnoreCase('Makefile') as mf:
+            #I will allow the user to know that I am creating a makefile for them if they do not already have one
+            print "Creating JSONMakefile"
+            MakeFileConverter.convert(mf)
+
     with functions.openIgnoreCase('JSONMakefile') as f:
         makeFile = json.load(f)
-except (IOError, EnvironmentError):
-    print >> sys.stderr, "Error! No JSONMakefile in this directory! Making one, and continuing."
-    try:
-        with functions.openIgnoreCase('Makefile') as makefile:
-            converter = MakeFileConverter.MakeFileConverter(makefile)
-            converter.convert()
-            with functions.openIgnoreCase('JSONMakefile') as f:
-                makeFile = json.load(f)
-    except (IOError, EnvironmentError):
-        print >> sys.stderr, "Error! No Makefile or JSONMakefile in this directory!"
-        sys.exit()
+except IOError:
+    print >> sys.stderr, "Error! No Makefile or JSONMakefile in this directory!"
+    sys.exit()
 except ValueError, e:
     print >> sys.stderr, "Error! Invalid JSON: " + str(e)
     sys.exit()
