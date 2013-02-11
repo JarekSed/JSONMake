@@ -20,7 +20,7 @@ def convert(makefile_name="Makefile"):
         if '=' in line:
             #Everything following the '=' should be stored in a variable
             var_split = line.split('=')
-            conversion_dict['Variables'][var_split[0].strip()] = var_split[1].strip()
+            conversion_dict['Variables'][var_split[0].strip()] = "=".join(var_split[1:]).strip()
 
         if ':' in line:
             #This means that a rule is being declared
