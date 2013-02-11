@@ -12,13 +12,12 @@ import functions
 import JSONMaker
 import MakeFileConverter
 
-if not functions.isFileInDir('JSONMakefile'):
-    with functions.openIgnoreCase('Makefile') as mf:
+try:
+    if not functions.isFileInDir('JSONMakefile'):
         #I will allow the user to know that I am creating a makefile for them if they do not already have one
         print "Creating JSONMakefile"
-        MakeFileConverter.convert(mf)
+        MakeFileConverter.convert("Makefile")
 
-try:
     with functions.openIgnoreCase('JSONMakefile') as f:
         makeFile = json.load(f)
 except IOError:

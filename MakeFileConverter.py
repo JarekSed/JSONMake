@@ -2,11 +2,12 @@ import sys
 import json
 import functions
 
-def convert(makefile=functions.openIgnoreCase("Makefile")):
+def convert(makefile_name="Makefile"):
     """
     Converts the Makefile into a JSONMakeFile
     """
 
+    makefile=functions.openIgnoreCase(makefile_name)
     conversion_dict = {'Variables': {}, 'Rules': {}}
 
     rule = ''
