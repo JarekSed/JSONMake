@@ -20,7 +20,8 @@ def convert(makefile_name="Makefile"):
         if '=' in line:
             #Everything following the '=' should be stored in a variable
             var_split = line.split('=')
-            conversion_dict['Variables'][var_split[0].strip()] = "=".join(var_split[1:]).strip()
+            variable = "=".join(var_split[1:]).strip()
+            conversion_dict['Variables'][var_split[0].strip()] = __parenStrip(variable)
 
         if ':' in line:
             #This means that a rule is being declared
@@ -37,9 +38,24 @@ def convert(makefile_name="Makefile"):
             #Everything after the initial whitespace is a command
             conversion_dict['Rules'][rule]['commands'].append(' '.join(line.split()))
 
-    __writeFile()
+    __writeFile(conversion_dict)
 
-def __writeFile(self):
+def __writeFile(conversion_dict):
+    """
+    Writes the makefile to file
+
+    Accepts a dictionary as input, and converts to a json object, then writes to the file
+    """
+
     with open('JSONMakefile', 'w') as file:
-        #write the actual file...I'm going to bed for now though
-        return
+        #write the actual file
+        file.write(json.dumps(conversion_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+
+def __parenStrip(string):
+    """
+    Strips the parentheses enclosing a variable
+    I'll deal with other cases later, but for now it is up to the user to match parentheses correctly
+    """
+
+    if string[0] == '(' and string[-1] == ')':
+        return string[1:-1]
