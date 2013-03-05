@@ -57,5 +57,7 @@ def __parenStrip(string):
     I'll deal with other cases later, but for now it is up to the user to match parentheses correctly
     """
 
-    if string[0] == '(' and string[-1] == ')':
-        return string[1:-1]
+    if string[1] == '(' and string[-1] == ')':
+        return string[0] + string[2:-1]
+
+    return string
