@@ -2,6 +2,7 @@ import json
 import subprocess
 import functions
 import os
+import sys
 
 class JSONMaker:
 
@@ -59,7 +60,7 @@ class JSONMaker:
         time_last_modified = os.path.getmtime(rule)
 
         if 'depends' in thisRule:
-            for dependency in thisRule['depends'].split():
+            for dependency in thisRule['depends']:
 
                 #In all of the following cases, it is decided that the rule must be built.
                 #If none of them are true for all dependencies of a rule, then False is returned.
@@ -104,7 +105,7 @@ class JSONMaker:
             raise KeyError
 
         if 'depends' in thisRule:
-            for dependency in thisRule['depends'].split():
+            for dependency in thisRule['depends']:
                 try:
                     self.build(dependency)
                 except subprocess.CalledProcessError as e:

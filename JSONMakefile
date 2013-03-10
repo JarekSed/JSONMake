@@ -1,0 +1,39 @@
+{
+    "Rules": {
+        "all": {
+            "commands": [],
+            "depends": [
+                "geometry"
+            ]
+        },
+        "clean": {
+            "commands": [
+                "rm -f geometry",
+                "rm -f *.o"
+            ],
+            "depends": [
+                ""
+            ]
+        },
+        "geometry": {
+            "commands": [
+                "$(COMPILER) $(CCFLAGS) -o geometry geometry.o"
+            ],
+            "depends": [
+                "geometry.o"
+            ]
+        },
+        "geometry.o": {
+            "commands": [
+                "$(COMPILER) $(CCFLAGS) -c geometry.c"
+            ],
+            "depends": [
+                "geometry.c"
+            ]
+        }
+    },
+    "Variables": {
+        "CCFLAGS": "-Wall -O2 -lm",
+        "COMPILER": "gcc"
+    }
+}

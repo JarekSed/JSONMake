@@ -20,7 +20,10 @@ def convert(makefile_name="Makefile"):
         if '=' in line:
             #Everything following the '=' should be stored in a variable
             var_split = line.split('=')
-            variable = "=".join(var_split[1:]).strip()
+            if len(var_split) > 2:
+                variable = "=".join(var_split[1:]).strip()
+            else:
+                variable = var_split[1].strip()
             conversion_dict['Variables'][var_split[0].strip()] = __parenStrip(variable)
 
         if ':' in line:
@@ -59,5 +62,4 @@ def __parenStrip(string):
 
     if string[1] == '(' and string[-1] == ')':
         return string[0] + string[2:-1]
-
     return string
