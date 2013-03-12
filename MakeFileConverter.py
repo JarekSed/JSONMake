@@ -44,14 +44,11 @@ def convert(makefile_name="Makefile"):
             rule_split = line.split(':')
             rule = rule_split[0].strip()
 
-            if rule_split[1] == "":
-                continue
-            else:
-                try:
-                    conversion_dict['Rules'][rule]['depends'].append(rule_split[1].strip())
-                except KeyError:
-                    conversion_dict['Rules'][rule] = {'depends': [], 'commands': []}
-                    conversion_dict['Rules'][rule]['depends'].append(rule_split[1].strip())
+            try:
+                conversion_dict['Rules'][rule]['depends'].extend([word for word in rule_split[1].split()])
+            except KeyError:
+                conversion_dict['Rules'][rule] = {'depends': [], 'commands': []}
+                conversion_dict['Rules'][rule]['depends'].extend([word for word in rule_split[1].split()])
 
         if line[0].isspace():
             #These are commands for some rule
