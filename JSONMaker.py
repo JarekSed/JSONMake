@@ -47,11 +47,20 @@ class JSONMaker:
         rule - String representing the name of the rule
         """
 
+        if rule not in self.__json_object['Rules']:
+            #If this is true, then this base case must be the result of a recursive call
+            #This is a dependency for some other rule that does exist.
+            if functions.isFileInDir(rule):
+                return
+            else:
+                print >> stderr, "File not found: " + rule
+                raise KeyError
+
         thisRule = self.__json_object['Rules'][rule]
         time_last_modified = os.path.getmtime(rule)
 
         if 'depends' in thisRule:
-            for dependency in thisRule['depends'].split():
+            for dependency in thisRule['depends']:
 
                 #In all of the following cases, it is decided that the rule must be built.
                 #If none of them are true for all dependencies of a rule, then False is returned.
@@ -63,7 +72,7 @@ class JSONMaker:
                     #This means that a dependency has been modified.
                     return True
 
-                if dependency in self.__json_object['Rules'] and self.__needsToBeBuilt(dependency):
+                if self.__needsToBeBuilt(dependency):
                     #Now a recursive check is made for every dependency of this rule
                     return True
 
@@ -96,7 +105,7 @@ class JSONMaker:
             raise KeyError
 
         if 'depends' in thisRule:
-            for dependency in thisRule['depends'].split():
+            for dependency in thisRule['depends']:
                 try:
                     self.build(dependency)
                 except subprocess.CalledProcessError as e:
