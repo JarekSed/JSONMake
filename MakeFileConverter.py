@@ -73,7 +73,6 @@ def __parenStrip(string):
     Strips the parentheses enclosing a variable
     I'll deal with other cases later, but for now it is up to the user to match parentheses correctly
     """
-    print string
     if not ('(' in string and ')' in string):
         return string
 
