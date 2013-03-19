@@ -129,7 +129,7 @@ class JSONMaker:
 
                 #Actually execute the commands
                 try:
-                    print "Executing: " + command
+                    print "Executing: " + command_to_execute
                     self.__execute_command(command_to_execute)
                 except subprocess.CalledProcessError as e:
                     raise e
